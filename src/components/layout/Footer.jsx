@@ -41,7 +41,7 @@ export default function Footer() {
       <section className="footer-column footer-contact" aria-labelledby="footer-contact-title">
         <h2 id="footer-contact-title">Need help?</h2>
         <div className="footer-contact-list">
-          <a href="tel:+919876543210" aria-label="Call NIJER MARKET at plus 91 98765 43210"><span className="footer-icon"><Phone size={16} aria-hidden="true" /></span><span>+91 98765 43210</span></a>
+          <a href="tel:+919876543210" aria-label="Call NIJER MARKET at plus 91 98765 43210"><span className="footer-icon"><Phone size={16} aria-hidden="true" /></span><span>+91 959388 1943</span></a>
           <a href="mailto:hello@nijermarket.local" aria-label="Email NIJER MARKET at hello at nijer market dot local"><span className="footer-icon"><Mail size={16} aria-hidden="true" /></span><span>hello@nijermarket.local</span></a>
           <span><span className="footer-icon"><MapPin size={16} aria-hidden="true" /></span><span>Serving your local area</span></span>
         </div>
