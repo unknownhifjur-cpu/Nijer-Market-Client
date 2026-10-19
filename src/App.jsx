@@ -12,6 +12,7 @@ export default function App() {
   const { pathname } = useLocation();
   const [cart, setCart] = useLocalState("nm_cart", []);
   const [wishlist, setWishlist] = useLocalState("nm_wishlist", []);
+  const [checkoutAddressDraft, setCheckoutAddressDraft] = useState(null);
   const [user, setUser] = useState(() => {
     try { return JSON.parse(localStorage.getItem("nm_user")) || null; } catch { return null; }
   });
@@ -32,10 +33,10 @@ export default function App() {
   const unreadCount = notifications.filter(item => new Date(item.createdAt).getTime() > new Date(lastSeenAt).getTime()).length;
   const addToCart = product => setCart(previous => { const found = previous.find(item => item._id === product._id); return found ? previous.map(item => item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item) : [...previous, { ...product, quantity: 1 }]; });
   const toggleWish = product => setWishlist(previous => previous.some(item => item._id === product._id) ? previous.filter(item => item._id !== product._id) : [...previous, product]);
-  const logout = () => { localStorage.removeItem("nm_token"); localStorage.removeItem("nm_user"); setUser(null); };
+  const logout = () => { localStorage.removeItem("nm_token"); localStorage.removeItem("nm_user"); setUser(null); setCheckoutAddressDraft(null); };
   const toggleNotifications = () => setShowNotifications(open => { if (!open) { const now = new Date().toISOString(); localStorage.setItem("nm_notifications_seen_at", now); setLastSeenAt(now); } return !open; });
 
-  const routeProps = { cart, setCart, clearCart: () => setCart([]), wishlist, toggleWish, addToCart, user, onAuth: setUser, onLogout: logout };
+  const routeProps = { cart, setCart, clearCart: () => setCart([]), wishlist, toggleWish, addToCart, user, onAuth: setUser, onLogout: logout, checkoutAddressDraft, setCheckoutAddressDraft };
   return <div className="app-shell">
     <Header cartCount={cartCount} notificationCount={unreadCount} onToggleNotifications={toggleNotifications} showNotifications={showNotifications}/>
     <NotificationPanel open={showNotifications} notifications={notifications} onClose={() => setShowNotifications(false)}/>
