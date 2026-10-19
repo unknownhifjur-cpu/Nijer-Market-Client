@@ -103,6 +103,7 @@
 }
 
 .co-delivery-fields .checkout-field > input,
+.co-delivery-fields .checkout-field > select,
 .co-delivery-fields .checkout-field > .co-readonly-field {
   width: 100%;
   min-height: 46px;
@@ -115,11 +116,13 @@
 }
 
 .co-delivery-fields .checkout-field > input:hover,
+.co-delivery-fields .checkout-field > select:hover,
 .co-delivery-fields .checkout-field > .co-readonly-field:hover {
   border-color: rgba(8, 122, 75, 0.5);
 }
 
 .co-delivery-fields .checkout-field > input:focus-visible,
+.co-delivery-fields .checkout-field > select:focus-visible,
 .co-delivery-fields .checkout-field > .co-readonly-field:focus-visible,
 .co-inline-link:focus-visible,
 .co-payment-option:focus-within,
@@ -138,6 +141,7 @@
 }
 
 .co-delivery-fields .checkout-field > input:focus-visible,
+.co-delivery-fields .checkout-field > select:focus-visible,
 .co-delivery-fields .checkout-field > .co-readonly-field:focus-visible {
   border-color: var(--co-accent);
   box-shadow: 0 0 0 3px rgba(8, 122, 75, 0.12);
@@ -364,6 +368,18 @@
   display: flex;
   justify-content: center;
   padding: 12px 0 8px;
+}
+
+.co-qr-download-group {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.co-qr-download {
+  min-width: 170px;
+  justify-content: center;
 }
 
 .co-qr-frame {

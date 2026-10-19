@@ -17,7 +17,9 @@ The development server uses `http://localhost:5173`.
 
 Optional: copy `client/.env.example` to `client/.env` and set `VITE_API_URL` to the API base URL, including `/api`. Only public configuration belongs in Vite environment variables.
 
-The checkout's searchable village and Post Office suggestions are intentionally empty until the verified location names are available. Configure `VITE_DELIVERY_VILLAGES` and `VITE_DELIVERY_POST_OFFICES` as pipe-separated values (for example, `Name One|Name Two`); customers can still enter unlisted locations manually. Restart Vite after changing these values.
+The checkout includes selection-only Village and Post Office dropdowns. Default villages are Chandranarayanpur, Tinshata Bighi, Notun Sikosti, Raipur, Mirjachak, and Sahabanchak; default Post Offices are Bedrabad and Baishnabnagar. Set `VITE_DELIVERY_VILLAGES` or `VITE_DELIVERY_POST_OFFICES` to pipe-separated lists to replace those choices. Restart Vite after changing these values.
+
+Customer orders show live fulfillment milestones and timestamps. UPI orders remain at payment verification until an admin confirms receipt; customers can cancel an order only while it is still placed.
 
 The checkout map uses the browser's Geolocation API only after a customer selects **Use My Current Location**. A point is saved to the address only after the customer confirms it. To show the map before GPS is requested, configure `VITE_DELIVERY_MAP_CENTER` as `latitude,longitude` using a verified center for the actual delivery area; leave it blank rather than guessing. Set this public Vite variable in the Vercel project and redeploy the client when using a configured center. GPS and map selection still work without it.
 

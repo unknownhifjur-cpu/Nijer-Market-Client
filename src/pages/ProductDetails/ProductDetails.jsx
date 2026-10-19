@@ -21,13 +21,13 @@ export default function ProductDetails({ addToCart, wishlist, toggleWish }) {
     <section className={`product-description-card${descriptionExpanded ? " expanded" : ""}`} aria-labelledby="product-description-title">
       <div className="product-description-heading">
         <span className="product-description-icon"><FileText size={18} /></span>
-        <div><h2 id="product-description-title">পণ্যের বিবরণ</h2><span>Learn More</span></div>
+        <div><h2 id="product-description-title">পণ্যের বিবরণ</h2><span>Details</span></div>
       </div>
       <p ref={descriptionRef} className="product-description-copy">{product.description || "এই পণ্যের বিবরণ এখনো যোগ করা হয়নি।"}</p>
       {descriptionExpanded && product.brand && <p className="product-description-brand"><strong>ব্র্যান্ড:</strong> {product.brand}</p>}
       <div className="product-description-more">
         <button type="button" aria-expanded={descriptionExpanded} onClick={() => setDescriptionExpanded(expanded => !expanded)}>
-          {descriptionExpanded ? "কম দেখুন ↑" : "Learn More →"}
+          {descriptionExpanded ? "কম দেখুন ↑" : "আরও দেখুন →"}
         </button>
       </div>
     </section>

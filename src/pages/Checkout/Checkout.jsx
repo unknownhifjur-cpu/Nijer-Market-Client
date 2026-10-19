@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { CheckCircle2, Copy, CreditCard, MapPin, Package, QrCode } from "lucide-react";
+import { CheckCircle2, Copy, CreditCard, Download, MapPin, Package, QrCode } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { money } from "../../utils/format";
@@ -27,8 +27,8 @@ function formFromSavedAddress(address) {
   return {
     ...emptyAddress,
     ...address,
-    villageCustom: Boolean(address.villageCustom) || !deliveryVillages.includes(address.village),
-    postOfficeCustom: Boolean(address.postOfficeCustom) || !deliveryPostOffices.includes(address.postOffice),
+    villageCustom: false,
+    postOfficeCustom: false,
     district: "Malda",
     pinCode: "732210"
   };
@@ -62,64 +62,36 @@ function addressError(address) {
   if (!/^[6-9]\d{9}$/.test(address.phone)) return "Enter a valid 10-digit Indian mobile number.";
   if (address.locality.trim().length < 2) return "Enter your para or locality name.";
   if (address.village.trim().length < 2) return "Enter a village name with at least 2 characters.";
-  if (!address.villageCustom && (!deliveryVillages.length || !deliveryVillages.includes(address.village.trim()))) {
-    return "Choose a listed village or select “My village is not listed” to enter it manually.";
+  if (!deliveryVillages.includes(address.village.trim())) {
+    return "Choose a village from the list.";
   }
   if (address.postOffice.trim().length < 2) return "Enter a Post Office name with at least 2 characters.";
-  if (!address.postOfficeCustom && (!deliveryPostOffices.length || !deliveryPostOffices.includes(address.postOffice.trim()))) {
-    return "Choose a listed Post Office or select the manual-entry option.";
+  if (!deliveryPostOffices.includes(address.postOffice.trim())) {
+    return "Choose a Post Office from the list.";
   }
   return "";
 }
 
-function LocationField({ id, label, options, value, custom, onChange, onCustomChange }) {
-  const listId = `${id}-options`;
+function LocationField({ id, label, options, value, onChange, placeholder }) {
   return (
     <div className="checkout-field">
-      <label htmlFor={custom ? `${id}-manual` : id}>{label}<span aria-hidden="true"> *</span></label>
-      {custom ? (
-        <>
-          <input
-            id={`${id}-manual`}
-            value={value}
-            onChange={event => onChange(event.target.value)}
-            placeholder={`Type your ${label.toLowerCase()}`}
-            autoComplete="off"
-            maxLength="100"
-            required
-          />
-          <button className="co-town-toggle co-inline-link" type="button" onClick={() => onCustomChange(false)}>
-            Choose from the available list
-          </button>
-        </>
-      ) : (
-        <>
-          <input
-            id={id}
-            list={listId}
-            value={value}
-            onChange={event => onChange(event.target.value)}
-            placeholder={options.length ? `Search or select ${label.toLowerCase()}` : `No ${label.toLowerCase()} list yet`}
-            autoComplete="off"
-            maxLength="100"
-            required
-          />
-          <datalist id={listId}>
-            {options.map(option => <option key={option} value={option} />)}
-          </datalist>
-          <button className="location-toggle" type="button" onClick={() => onCustomChange(true)}>
-            {options.length ? `My ${label.toLowerCase()} is not listed` : `Enter ${label.toLowerCase()} manually`}
-          </button>
-          {!options.length && <small className="field-help">Location choices have not been configured yet. You can enter this manually.</small>}
-        </>
-      )}
+      <label htmlFor={id}>{label}<span aria-hidden="true"> *</span></label>
+      <select id={id} value={value} onChange={event => onChange(event.target.value)} required>
+        <option value="" disabled>{placeholder}</option>
+        {options.map(option => <option key={option} value={option}>{option}</option>)}
+      </select>
     </div>
   );
 }
 
 export default function Checkout({ cart, clearCart, addressDraft, setAddressDraft }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState(() => ({ ...emptyAddress, ...(addressDraft || {}) }));
+  const [form, setForm] = useState(() => ({
+    ...emptyAddress,
+    ...(addressDraft || {}),
+    villageCustom: false,
+    postOfficeCustom: false
+  }));
   const [isAuthenticated] = useState(() => Boolean(localStorage.getItem("nm_token")));
   const [selectedLocation, setSelectedLocation] = useState(() => locationFromAddress(addressDraft));
   const [pendingLocation, setPendingLocation] = useState(null);
@@ -138,6 +110,7 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
   const [error, setError] = useState("");
   const [done, setDone] = useState(null);
   const [paymentConfig, setPaymentConfig] = useState({ upiId: "", qrCodeUrl: "", enabled: false });
+  const [qrDownloading, setQrDownloading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [clientRequestId, setClientRequestId] = useState(newRequestId);
   const [quote, setQuote] = useState(null);
@@ -401,15 +374,39 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
     try { await navigator.clipboard.writeText(paymentConfig.upiId); } catch { setError("Copy is unavailable. Please select the UPI ID manually."); }
   };
 
+  const downloadQrCode = async () => {
+    if (!paymentConfig.qrCodeUrl || qrDownloading) return;
+    setQrDownloading(true);
+    try {
+      const response = await fetch(paymentConfig.qrCodeUrl);
+      if (!response.ok) throw new Error(`QR download failed (${response.status}).`);
+      const image = await response.blob();
+      const extensionByType = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+      const extension = extensionByType[image.type] || "png";
+      const objectUrl = URL.createObjectURL(image);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `nijer-market-upi-qr.${extension}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+    } catch (downloadError) {
+      setError(`${downloadError.message || "QR download failed."} You can still scan the QR code on this page.`);
+    } finally {
+      setQrDownloading(false);
+    }
+  };
+
   if (!cart.length && !done) return <div className="empty"><h2>Cart is empty</h2><Link to="/shop" className="primary-btn">Shop Now</Link></div>;
 
   if (done) return (
     <div className="success-box">
       <Package size={52} />
       <h1>Order placed!</h1>
-      <p>Order ID: <b>{done._id}</b></p>
+      <p>Order number: <b>{done.orderNumber || `#${String(done._id).slice(-8)}`}</b></p>
       {done.paymentMethod === "UPI" && (
-        <p className="payment-notice"><strong>Payment submitted successfully.</strong><br />Your payment is waiting for confirmation from the shop.</p>
+        <p className="payment-notice"><strong>Payment submitted.</strong><br />Waiting for shop confirmation.</p>
       )}
       <Link to="/orders" className="primary-btn">View My Orders</Link>
       <small className="muted">Redirecting to My Orders…</small>
@@ -418,7 +415,7 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
 
   return (
     <section>
-      <div className="section-heading"><h1>Secure Checkout</h1></div>
+      <div className="section-heading"><h1>Checkout</h1></div>
       <form className="checkout-layout co-checkout-layout" onSubmit={submit}>
         <div className="form-card co-form-card">
           <div className="delivery-heading co-delivery-header">
@@ -433,9 +430,9 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
           )}
           {!isAuthenticated && (
             <div className="guest-checkout-note co-guest-callout">
-              <p>You can enter your delivery details without an account. Sign in or create an account to place your order and save this address to your account.</p>
+              <p>Checkout as a guest, or sign in to save this address.</p>
               <Link className="outline-btn" to="/login?next=/checkout">Sign in or create an account</Link>
-              <small>This address draft is kept only in this page session until you sign in. It is not saved across devices.</small>
+              <small>Guest addresses are kept for this session only.</small>
             </div>
           )}
           <Suspense fallback={<p className="co-location-status" role="status">Loading location tools…</p>}>
@@ -457,7 +454,7 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
             <legend className="co-visually-hidden">Delivery address</legend>
             <div className="checkout-field">
               <label htmlFor="delivery-name">Full name<span aria-hidden="true"> *</span></label>
-              <input id="delivery-name" autoComplete="name" value={form.fullName} onChange={event => updateAddress("fullName", event.target.value)} placeholder="Name of the person receiving the order" maxLength="80" required />
+              <input id="delivery-name" autoComplete="name" value={form.fullName} onChange={event => updateAddress("fullName", event.target.value)} placeholder="Recipient name" maxLength="80" required />
             </div>
             <div className="checkout-field">
               <label htmlFor="delivery-phone">Phone number<span aria-hidden="true"> *</span></label>
@@ -465,10 +462,10 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
             </div>
             <div className="checkout-field delivery-field-wide">
               <label htmlFor="delivery-locality">Para / locality name<span aria-hidden="true"> *</span></label>
-              <input id="delivery-locality" autoComplete="address-line1" value={form.locality} onChange={event => updateAddress("locality", event.target.value)} placeholder="House, para, or nearby landmark" maxLength="120" required />
+              <input id="delivery-locality" autoComplete="address-line1" value={form.locality} onChange={event => updateAddress("locality", event.target.value)} placeholder="House, para, or landmark" maxLength="120" required />
             </div>
-            <LocationField id="delivery-village" label="Village" options={deliveryVillages} value={form.village} custom={form.villageCustom} onChange={value => updateAddress("village", value)} onCustomChange={value => updateAddress("villageCustom", value)} />
-            <LocationField id="delivery-post-office" label="Post Office" options={deliveryPostOffices} value={form.postOffice} custom={form.postOfficeCustom} onChange={value => updateAddress("postOffice", value)} onCustomChange={value => updateAddress("postOfficeCustom", value)} />
+            <LocationField id="delivery-village" label="Village" options={deliveryVillages} value={form.village} onChange={value => updateAddress("village", value)} placeholder="Select a village" />
+            <LocationField id="delivery-post-office" label="Post Office" options={deliveryPostOffices} value={form.postOffice} onChange={value => updateAddress("postOffice", value)} placeholder="Select a Post Office" />
             <div className="fixed-address-fields">
               <div className="checkout-field">
                 <label htmlFor="delivery-district">District</label>
@@ -485,7 +482,7 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
             {isAuthenticated && <button className="outline-btn" type="button" onClick={saveAddress} disabled={saving || loadingAddress}>Save Address</button>}
             <button className={`outline-btn use-address-btn co-use-address-btn ${addressSelected ? "is-selected" : ""}`} type="button" onClick={useAddress} aria-pressed={addressSelected}><CheckCircle2 size={17} aria-hidden="true" />{addressSelected ? "Address Selected" : "Use This Address"}</button>
           </div>
-          {isAuthenticated && savedAddress && <small className="field-help">This account has one saved delivery address. Saving edits updates that address.</small>}
+          {isAuthenticated && savedAddress && <small className="field-help">Saving updates your saved address.</small>}
           <div className="co-section-divider" aria-hidden="true" />
           <div className="co-payment-section">
             <h2 className="payment-title co-section-title"><CreditCard size={18} aria-hidden="true" />Payment</h2>
@@ -514,7 +511,7 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
             {form.paymentMethod === "UPI" && (
               <div className="upi-panel co-upi-panel">
                 <div className="upi-heading co-upi-header"><CreditCard size={19} aria-hidden="true" /><strong>Pay manually via UPI</strong></div>
-                <p>Pay the exact amount to the UPI ID or QR below, then select “I Have Paid”. Your order will wait for shop confirmation.</p>
+                <p>Pay the exact amount, then select “I Have Paid”. The shop will confirm your payment.</p>
                 <div className="upi-amount co-upi-amount">Payable amount <b>{money(payable)}</b></div>
                 <div className="upi-id-row co-upi-row">
                   <span>UPI ID: <b>{paymentConfig.upiId || "Not configured"}</b></span>
@@ -522,10 +519,18 @@ export default function Checkout({ cart, clearCart, addressDraft, setAddressDraf
                 </div>
                 <div className="co-qr-wrap">
                   {paymentConfig.qrCodeUrl
-                    ? <div className="co-qr-frame"><img src={paymentConfig.qrCodeUrl} alt="Shop UPI QR code" /></div>
+                    ? (
+                      <div className="co-qr-download-group">
+                        <div className="co-qr-frame"><img src={paymentConfig.qrCodeUrl} alt="Shop UPI QR code" /></div>
+                        <button className="co-copy-btn co-qr-download" type="button" onClick={downloadQrCode} disabled={qrDownloading}>
+                          <Download size={15} aria-hidden="true" />
+                          {qrDownloading ? "Preparing download…" : "Download QR code"}
+                        </button>
+                      </div>
+                    )
                     : <div className="co-qr-frame co-qr-placeholder"><QrCode size={32} aria-hidden="true" /><span>QR code is not configured</span></div>}
                 </div>
-                <p>Scan the QR code or use the UPI ID to complete the payment yourself.</p>
+                <p>Scan the QR code or pay using the UPI ID.</p>
                 <div className="co-utr-field">
                   <label htmlFor="upi-utr">UTR / transaction reference <small>(optional)</small></label>
                   <input id="upi-utr" value={form.utr} onChange={event => setForm({ ...form, utr: event.target.value })} minLength="6" maxLength="80" placeholder="Enter reference after payment" />

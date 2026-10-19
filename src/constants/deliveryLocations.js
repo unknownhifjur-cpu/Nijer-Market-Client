@@ -2,8 +2,24 @@ function parseLocations(value) {
   return String(value || "").split("|").map(location => location.trim()).filter(Boolean);
 }
 
-export const deliveryVillages = parseLocations(import.meta.env.VITE_DELIVERY_VILLAGES);
-export const deliveryPostOffices = parseLocations(import.meta.env.VITE_DELIVERY_POST_OFFICES);
+const defaultDeliveryVillages = [
+  "Chandranarayanpur",
+  "Tinshata Bighi",
+  "Notun Sikosti",
+  "Raipur",
+  "Mirjachak",
+  "Sahabanchak"
+];
+const defaultDeliveryPostOffices = ["Bedrabad", "Baishnabnagar"];
+
+const configuredDeliveryVillages = parseLocations(import.meta.env.VITE_DELIVERY_VILLAGES);
+export const deliveryVillages = configuredDeliveryVillages.length
+  ? configuredDeliveryVillages
+  : defaultDeliveryVillages;
+const configuredDeliveryPostOffices = parseLocations(import.meta.env.VITE_DELIVERY_POST_OFFICES);
+export const deliveryPostOffices = configuredDeliveryPostOffices.length
+  ? configuredDeliveryPostOffices
+  : defaultDeliveryPostOffices;
 
 function parseMapCenter(value) {
   const normalized = String(value || "").trim();

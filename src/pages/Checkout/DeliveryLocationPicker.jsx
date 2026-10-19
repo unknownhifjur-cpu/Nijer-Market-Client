@@ -46,7 +46,7 @@ export default function DeliveryLocationPicker({
       <div className="co-location-heading">
         <div>
           <h3 id="delivery-location-heading">Delivery point on map</h3>
-          <p>Choose a point for delivery reference. Your address fields remain editable.</p>
+          <p>Choose a delivery point. Your address stays editable.</p>
         </div>
         <MapPin size={19} aria-hidden="true" />
       </div>
@@ -99,16 +99,16 @@ export default function DeliveryLocationPicker({
               )}
             </MapContainer>
           </div>
-          <p className="co-map-hint">Tap or click the map to choose a point, then confirm it below.</p>
+          <p className="co-map-hint">Select a point on the map, then confirm it.</p>
           {tilesFailed && (
             <p className="co-location-error" role="status">
-              Map tiles could not be loaded. You can retry the map or continue with manual address entry.
+              Map unavailable. Retry or continue without a map point.
             </p>
           )}
         </>
       ) : (
         <p className="co-map-unconfigured">
-          Map selection becomes available after using your location. The store can also configure its verified delivery-area map center.
+          Use your current location, or set a verified store map center.
         </p>
       )}
 
@@ -150,7 +150,7 @@ export default function DeliveryLocationPicker({
         </div>
       )}
       <small className="co-location-disclaimer">
-        Map tiles are provided by OpenStreetMap and may be subject to public-service usage limits. Selecting a point does not confirm delivery availability.
+        OpenStreetMap usage limits apply. A map point does not guarantee delivery.
       </small>
     </section>
   );

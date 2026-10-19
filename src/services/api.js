@@ -31,5 +31,6 @@ export const api = {
   saveDeliveryAddress: address => request("/account/delivery-address", { method: "PUT", body: JSON.stringify({ address }) }),
   quoteOrder: items => request("/orders/quote", { method: "POST", body: JSON.stringify({ items }) }),
   createOrder: body => request("/orders", { method: "POST", body: JSON.stringify(body) }),
-  myOrders: () => request("/orders/my")
+  myOrders: () => request("/orders/my"),
+  cancelOrder: id => request(`/orders/${encodeURIComponent(id)}/cancel`, { method: "PATCH" })
 };
