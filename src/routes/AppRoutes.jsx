@@ -13,7 +13,7 @@ export default function AppRoutes(props) {
   return <Routes>
     <Route path="/" element={<Home {...props}/>}/><Route path="/shop" element={<Products {...props}/>}/><Route path="/product/:id" element={<ProductDetails {...props}/>}/>
     <Route path="/cart" element={<Cart cart={props.cart} setCart={props.setCart}/>}/><Route path="/checkout" element={<Checkout cart={props.cart} clearCart={props.clearCart} addressDraft={props.checkoutAddressDraft} setAddressDraft={props.setCheckoutAddressDraft}/>}/>
-    <Route path="/login" element={<Login onAuth={props.onAuth}/>}/><Route path="/account" element={<Profile user={props.user} onLogout={props.onLogout}/>}/>
+    <Route path="/login" element={<Login onAuth={props.onAuth}/>}/><Route path="/account" element={<Profile user={props.user} onLogout={props.onLogout} cart={props.cart} wishlist={props.wishlist}/>}/>
     <Route path="/orders" element={<Orders/>}/><Route path="/wishlist" element={<Wishlist {...props}/>}/>
   </Routes>;
 }
