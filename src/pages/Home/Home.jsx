@@ -15,6 +15,7 @@ import { api } from "../../services/api";
 import SearchBar from "../../components/common/SearchBar";
 import BrandLoader from "../../components/common/BrandLoader";
 import ProductCard from "../../components/product/ProductCard";
+import HomeHero from "./HomeHero";
 
 /* =================================
    ANIMATION VARIANTS
@@ -30,30 +31,6 @@ const fadeUp = {
     y: 0,
     transition: {
       duration: 0.55,
-      ease: "easeOut",
-    },
-  },
-};
-
-const heroContainer = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-    },
-  },
-};
-
-const heroItem = {
-  hidden: {
-    opacity: 0,
-    y: 22,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
       ease: "easeOut",
     },
   },
@@ -93,8 +70,6 @@ const productContainer = {
     },
   },
 };
-
-const MotionLink = motion(Link);
 
 const productItem = {
   hidden: {
@@ -260,230 +235,21 @@ export default function Home({
           />
         </motion.div>
 
-        {/* HERO */}
-
-        <motion.div
-          className="hero"
-          variants={heroContainer}
-          initial="hidden"
-          animate="visible"
-        >
-          <div className="hero-content">
-            <motion.p
-              className="eyebrow"
-              variants={heroItem}
-            >
-              আপনার এলাকা, আপনার নিজের বাজার
-            </motion.p>
-
-            <motion.h1
-              id="home-hero-title"
-              variants={heroItem}
-            >
-              আপনার প্রয়োজন,
-              <br />
-              আপনার কাছেই!
-            </motion.h1>
-
-            <motion.p
-              className="hero-description"
-              variants={heroItem}
-            >
-              স্থানীয় দোকান থেকে প্রতিদিনের প্রয়োজনীয়
-              জিনিস একসাথে, সহজে এবং আপনার এলাকার
-              কাছেই।
-            </motion.p>
-
-            {/* BUTTONS
-                Direct motion(Link) avoids extra wrapper
-                elements that can break the flex layout. */}
-            <motion.div
-              className="hero-actions"
-              variants={heroItem}
-            >
-              <MotionLink
-                to="/shop"
-                className="primary-btn"
-                whileHover={{
-                  scale: 1.03,
-                }}
-                whileTap={{
-                  scale: 0.97,
-                }}
-              >
-                <span>এখনই কিনুন</span>
-
-                <motion.span
-                  whileHover={{
-                    x: 4,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 20,
-                  }}
-                >
-                  <ChevronRight
-                    size={18}
-                    aria-hidden="true"
-                  />
-                </motion.span>
-              </MotionLink>
-
-              <MotionLink
-                to="/shop"
-                className="outline-btn"
-                whileHover={{
-                  scale: 1.03,
-                }}
-                whileTap={{
-                  scale: 0.97,
-                }}
-              >
-                সব পণ্য দেখুন
-              </MotionLink>
-            </motion.div>
-          </div>
-
-          {/* HERO ART */}
-
-          <motion.div
-            className="hero-art"
-            aria-hidden="true"
-            initial={{
-              opacity: 0,
-              scale: 0.85,
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-            }}
-            transition={{
-              duration: 0.7,
-              delay: 0.25,
-              ease: "easeOut",
-            }}
-          >
-            <motion.span
-              animate={{
-                y: [0, -8, 0],
-                rotate: [0, 2, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            >
-              🥕
-            </motion.span>
-
-            <motion.span
-              animate={{
-                y: [0, -10, 0],
-                rotate: [0, -2, 0],
-              }}
-              transition={{
-                duration: 3.4,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.3,
-              }}
-            >
-              🍅
-            </motion.span>
-
-            <motion.span
-              animate={{
-                y: [0, -7, 0],
-                rotate: [0, 3, 0],
-              }}
-              transition={{
-                duration: 3.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.5,
-              }}
-            >
-              🛍️
-            </motion.span>
-
-            <motion.span
-              animate={{
-                y: [0, -9, 0],
-                rotate: [0, -3, 0],
-              }}
-              transition={{
-                duration: 3.6,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 0.8,
-              }}
-            >
-              🥬
-            </motion.span>
-          </motion.div>
-        </motion.div>
+        <HomeHero products={products} />
       </section>
-
-      {/* =================================
-          SERVICES
-      ================================= */}
 
       <motion.section
         className="service-strip"
         aria-label="আমাদের সেবাসমূহ"
         initial="hidden"
         whileInView="visible"
-        viewport={{
-          once: true,
-          amount: 0.2,
-        }}
+        viewport={{ once: true, amount: 0.2 }}
         variants={fadeUp}
       >
-        <ServiceItem
-          icon={
-            <Truck
-              size={24}
-              aria-hidden="true"
-            />
-          }
-          title="দ্রুত ডেলিভারি"
-          description="আপনার এলাকায়"
-        />
-
-        <ServiceItem
-          icon={
-            <ShieldCheck
-              size={24}
-              aria-hidden="true"
-            />
-          }
-          title="নিরাপদ পেমেন্ট"
-          description="বিশ্বস্ত চেকআউট"
-        />
-
-        <ServiceItem
-          icon={
-            <Bell
-              size={24}
-              aria-hidden="true"
-            />
-          }
-          title="সাপোর্ট"
-          description="প্রয়োজনে পাশে"
-        />
-
-        <ServiceItem
-          icon={
-            <Package
-              size={24}
-              aria-hidden="true"
-            />
-          }
-          title="লোকাল শপ"
-          description="স্থানীয় ব্যবসার সাথে"
-        />
+        <ServiceItem icon={<Truck size={24} aria-hidden="true" />} title="দ্রুত ডেলিভারি" description="আপনার এলাকায়" />
+        <ServiceItem icon={<ShieldCheck size={24} aria-hidden="true" />} title="নিরাপদ পেমেন্ট" description="বিশ্বস্ত চেকআউট" />
+        <ServiceItem icon={<Bell size={24} aria-hidden="true" />} title="সাপোর্ট" description="প্রয়োজনে পাশে" />
+        <ServiceItem icon={<Package size={24} aria-hidden="true" />} title="লোকাল শপ" description="স্থানীয় ব্যবসার সাথে" />
       </motion.section>
 
       {/* =================================
