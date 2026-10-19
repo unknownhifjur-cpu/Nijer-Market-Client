@@ -17,6 +17,12 @@ The development server uses `http://localhost:5173`.
 
 Optional: copy `client/.env.example` to `client/.env` and set `VITE_API_URL` to the API base URL, including `/api`. Only public configuration belongs in Vite environment variables.
 
+## Installable app
+
+The production site can be installed from a supported browser's install control or browser menu. On iOS, use Safari's **Add to Home Screen** action. Installation and service workers require HTTPS (except on localhost).
+
+The service worker caches the app shell and previously loaded static files so the site can open offline. Product, account, checkout, and other API data still require a network connection.
+
 ## Build
 
 ```sh

@@ -261,3 +261,41 @@ button,input,textarea{font:inherit} button{cursor:pointer;border:0}.app-shell{mi
     height:48px;
   }
 }
+
+.footer-install{
+  display:grid;
+  justify-items:start;
+  gap:8px;
+  margin-top:4px;
+}
+
+.footer-install-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:42px;
+  padding:0 14px;
+  border:1px solid #72d28d;
+  border-radius:10px;
+  background:#087a4b;
+  color:#fff;
+  font-weight:800;
+}
+
+.footer-install-button:hover:not(:disabled){
+  background:#05643e;
+}
+
+.footer-install-button:disabled{
+  cursor:default;
+  opacity:.75;
+}
+
+.footer-install-message{
+  max-width:310px;
+  margin:0;
+  color:#d4e8dc;
+  font-size:12px;
+  line-height:1.5;
+}

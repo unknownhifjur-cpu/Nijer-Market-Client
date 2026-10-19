@@ -1,4 +1,5 @@
-import { ArrowUpRight, Heart, Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowDownToLine, ArrowUpRight, Heart, Mail, MapPin, Phone, ShieldCheck, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const shopLinks = [
@@ -12,6 +13,52 @@ const quickLinks = [
 ];
 
 export default function Footer() {
+  const [installPrompt, setInstallPrompt] = useState(null);
+  const [installMessage, setInstallMessage] = useState("");
+  const [isInstalled, setIsInstalled] = useState(() =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+
+  useEffect(() => {
+    const handleInstallPrompt = event => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    };
+    const handleInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleInstallPrompt);
+    window.addEventListener("appinstalled", handleInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleInstallPrompt);
+      window.removeEventListener("appinstalled", handleInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) {
+      const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      setInstallMessage(isIos
+        ? "To install, tap Share in Safari, then Add to Home Screen."
+        : "To install, choose Install app or Add to Home Screen from your browser menu.");
+      return;
+    }
+
+    try {
+      await installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      setInstallMessage(outcome === "accepted" ? "Nijer Market is installing." : "");
+    } catch (error) {
+      console.error("App installation prompt failed:", error);
+      setInstallMessage("The app could not be installed. Try the install option in your browser menu.");
+    }
+  };
+
   const linkGroup = (title, links, label) => <div className="footer-column">
     <h2>{title}</h2>
     <nav aria-label={label} className="footer-links">
@@ -29,6 +76,13 @@ export default function Footer() {
           <span><ShieldCheck size={17} aria-hidden="true" /> Secure shopping</span>
           <span><Truck size={17} aria-hidden="true" /> Local delivery</span>
         </div>
+        {!isInstalled && <div className="footer-install">
+          <button type="button" className="footer-install-button" onClick={handleInstall}>
+            <ArrowDownToLine size={17} aria-hidden="true" />
+            Download App
+          </button>
+          {installMessage && <p className="footer-install-message" role="status">{installMessage}</p>}
+        </div>}
       </section>
       <nav className="footer-mobile-links" aria-label="Mobile footer links">
         <Link to="/shop">Shop</Link>
