@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 import { api } from "../../services/api";
-import { getProductCategories } from "../../utils/categories";
 
 import SearchBar from "../../components/common/SearchBar";
 import BrandLoader from "../../components/common/BrandLoader";
@@ -122,10 +121,19 @@ export default function Home({
   toggleWish,
 }) {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [categoryError, setCategoryError] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const categories = getProductCategories(products);
+
+  useEffect(() => {
+    let cancelled = false;
+    api.categories("home")
+      .then(result => { if (!cancelled) setCategories(Array.isArray(result.categories) ? result.categories : []); })
+      .catch(err => { if (!cancelled) setCategoryError(err.message || "Unable to load categories."); });
+    return () => { cancelled = true; };
+  }, []);
 
   /* =================================
      LOAD PRODUCTS
@@ -517,9 +525,9 @@ export default function Home({
           className="category-grid"
           variants={categoryContainer}
         >
-          {categories.map(name => (
+          {categories.map(category => (
             <motion.div
-              key={name}
+              key={category._id}
               className="category-motion-item"
               variants={categoryItem}
               whileHover={{
@@ -531,11 +539,9 @@ export default function Home({
               }}
             >
               <Link
-                to={`/shop?category=${encodeURIComponent(
-                  name
-                )}`}
+                to={`/shop?mainCategoryId=${encodeURIComponent(category._id)}`}
                 className="category-card"
-                aria-label={`${name} category`}
+                aria-label={`${category.name} category`}
               >
                 <motion.div
                   className="category-icon"
@@ -550,13 +556,12 @@ export default function Home({
                     damping: 15,
                   }}
                 >
-                  <Package
-                    size={32}
-                    strokeWidth={1.8}
-                  />
+                  {category.image
+                    ? <img src={category.image} alt="" loading="lazy" />
+                    : <Package size={32} strokeWidth={1.8} />}
                 </motion.div>
 
-                <b>{name}</b>
+                <b>{category.name}</b>
 
                 <span>
                   Explore now{" "}
@@ -574,6 +579,7 @@ export default function Home({
             </motion.div>
           ))}
         </motion.div>
+        {categoryError && <p className="muted" role="status">{categoryError}</p>}
       </motion.section>
 
       {/* =================================

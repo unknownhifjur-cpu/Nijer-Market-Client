@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 
-export default function SearchBar({ value, onChange }) {
+export default function SearchBar({ value, onChange, mainCategoryId = "", subcategoryId = "" }) {
   const navigate = useNavigate();
   const shellRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -18,10 +18,10 @@ export default function SearchBar({ value, onChange }) {
     if (!query) return undefined;
     let current = true;
     const timer = setTimeout(() => {
-      api.search(query).then(result => { if (current) { setSuggestions(result.data.suggestions || []); setActiveIndex(-1); } }).catch(() => { if (current) setSuggestions([]); });
+      api.search(query, { mainCategoryId, subcategoryId }).then(result => { if (current) { setSuggestions(result.data.suggestions || []); setActiveIndex(-1); } }).catch(() => { if (current) setSuggestions([]); });
     }, 250);
     return () => { current = false; clearTimeout(timer); };
-  }, [value]);
+  }, [value, mainCategoryId, subcategoryId]);
 
   useEffect(() => {
     const close = event => { if (!shellRef.current?.contains(event.target)) setSuggestions([]); };
@@ -31,9 +31,10 @@ export default function SearchBar({ value, onChange }) {
 
   useEffect(() => () => recognitionRef.current?.abort(), []);
 
-  const submit = event => { event.preventDefault(); const query = suggestions[activeIndex]?.name || value.trim(); if (query) navigate(`/shop?search=${encodeURIComponent(query)}`); setSuggestions([]); };
+  const searchUrl = query => { const params = new URLSearchParams({ search: query }); if (mainCategoryId) params.set("mainCategoryId", mainCategoryId); if (subcategoryId) params.set("subcategoryId", subcategoryId); return `/shop?${params.toString()}`; };
+  const submit = event => { event.preventDefault(); const query = suggestions[activeIndex]?.name || value.trim(); if (query) navigate(searchUrl(query)); setSuggestions([]); };
   const handleInput = event => { onChange(event.target.value); setSuggestions([]); setActiveIndex(-1); };
-  const chooseSuggestion = suggestion => { onChange(suggestion.name); navigate(`/shop?search=${encodeURIComponent(suggestion.name)}`); setSuggestions([]); };
+  const chooseSuggestion = suggestion => { onChange(suggestion.name); navigate(searchUrl(suggestion.name)); setSuggestions([]); };
   const handleKeyDown = event => {
     if (event.key === "ArrowDown" && suggestions.length) { event.preventDefault(); setActiveIndex(index => (index + 1) % suggestions.length); }
     if (event.key === "ArrowUp" && suggestions.length) { event.preventDefault(); setActiveIndex(index => (index - 1 + suggestions.length) % suggestions.length); }

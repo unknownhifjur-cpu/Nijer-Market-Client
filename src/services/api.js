@@ -14,7 +14,13 @@ async function request(path, options = {}) {
 export const api = {
   products: (params = "") => request(`/products${params ? `?${params}` : ""}`),
   productCategories: () => request("/products/categories"),
-  search: query => request(`/products/search?q=${encodeURIComponent(query)}`),
+  categories: (view = "") => request(`/categories${view ? `?view=${encodeURIComponent(view)}` : ""}`),
+  search: (query, filters = {}) => {
+    const params = new URLSearchParams({ q: query });
+    if (filters.mainCategoryId) params.set("mainCategoryId", filters.mainCategoryId);
+    if (filters.subcategoryId) params.set("subcategoryId", filters.subcategoryId);
+    return request(`/products/search?${params.toString()}`);
+  },
   product: id => request(`/products/${id}`),
   announcements: () => request("/announcements"),
   paymentConfig: () => request("/payment-config"),
