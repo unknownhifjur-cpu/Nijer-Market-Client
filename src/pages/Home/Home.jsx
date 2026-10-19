@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 import { api } from "../../services/api";
-import { categories } from "../../constants/catalog";
+import { getProductCategories } from "../../utils/categories";
 
 import SearchBar from "../../components/common/SearchBar";
 import BrandLoader from "../../components/common/BrandLoader";
@@ -125,6 +125,7 @@ export default function Home({
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const categories = getProductCategories(products);
 
   /* =================================
      LOAD PRODUCTS
@@ -516,7 +517,7 @@ export default function Home({
           className="category-grid"
           variants={categoryContainer}
         >
-          {categories.map(([name, Icon]) => (
+          {categories.map(name => (
             <motion.div
               key={name}
               className="category-motion-item"
@@ -549,7 +550,7 @@ export default function Home({
                     damping: 15,
                   }}
                 >
-                  <Icon
+                  <Package
                     size={32}
                     strokeWidth={1.8}
                   />

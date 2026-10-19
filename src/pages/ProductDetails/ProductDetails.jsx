@@ -26,8 +26,6 @@ export default function ProductDetails({ addToCart, wishlist, toggleWish }) {
       <p ref={descriptionRef} className="product-description-copy">{product.description || "এই পণ্যের বিবরণ এখনো যোগ করা হয়নি।"}</p>
       {descriptionExpanded && product.brand && <p className="product-description-brand"><strong>ব্র্যান্ড:</strong> {product.brand}</p>}
       <div className="product-description-more">
-        <strong>আরও জানতে চান?</strong>
-        <span>পণ্যের বিস্তারিত তথ্য, ব্যবহার পদ্ধতি ও উপকারিতা পড়ুন</span>
         <button type="button" aria-expanded={descriptionExpanded} onClick={() => setDescriptionExpanded(expanded => !expanded)}>
           {descriptionExpanded ? "কম দেখুন ↑" : "Learn More →"}
         </button>

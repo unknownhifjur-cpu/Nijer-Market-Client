@@ -13,6 +13,7 @@ async function request(path, options = {}) {
 
 export const api = {
   products: (params = "") => request(`/products${params ? `?${params}` : ""}`),
+  productCategories: () => request("/products/categories"),
   search: query => request(`/products/search?q=${encodeURIComponent(query)}`),
   product: id => request(`/products/${id}`),
   announcements: () => request("/announcements"),
