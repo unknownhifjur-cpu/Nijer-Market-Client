@@ -3,6 +3,7 @@ import { Package, RefreshCw, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { api } from "../../services/api";
 import { money } from "../../utils/format";
+import BrandLoader from "../../components/common/BrandLoader";
 
 const PAYMENT_STATES = {
   paid: { label: "Payment received by shop", detail: "Payment has been confirmed by the shop.", className: "payment-paid", icon: "🟢" },
@@ -58,7 +59,7 @@ export default function Orders() {
   }, [token]);
 
   if (!token) return <div className="empty"><User size={48} /><h2>Please sign in first</h2><p className="muted">Sign in to view and track your orders.</p><Link className="primary-btn" to="/login?next=/orders">Sign In</Link></div>;
-  if (loading) return <div className="loading"><Package size={42} /><h2>Loading your orders...</h2><p className="muted">Please wait while we fetch your latest purchases.</p></div>;
+  if (loading) return <BrandLoader title="Loading your orders..." detail="Please wait while we fetch your latest purchases." />;
   if (error) return <div className="empty"><Package size={48} /><h2>We could not load your orders</h2><p className="error">{error}</p><button className="primary-btn" onClick={loadOrders}>Try Again</button></div>;
 
   return (

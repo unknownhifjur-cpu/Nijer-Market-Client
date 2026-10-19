@@ -14,6 +14,7 @@ import { api } from "../../services/api";
 import { categories } from "../../constants/catalog";
 
 import SearchBar from "../../components/common/SearchBar";
+import BrandLoader from "../../components/common/BrandLoader";
 import ProductCard from "../../components/product/ProductCard";
 
 /* =================================
@@ -611,33 +612,7 @@ export default function Home({
 
         {/* LOADING */}
 
-        {loading && (
-          <motion.div
-            className="loading"
-            role="status"
-            aria-live="polite"
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-          >
-            <motion.div
-              className="loading-spinner"
-              animate={{
-                rotate: 360,
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-            />
-
-            <p>পণ্য লোড হচ্ছে...</p>
-          </motion.div>
-        )}
+        {loading && <BrandLoader title="পণ্য লোড হচ্ছে..." detail="আপনার এলাকার পণ্য প্রস্তুত করা হচ্ছে" />}
 
         {/* ERROR */}
 

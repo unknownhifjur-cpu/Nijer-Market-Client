@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Eye, EyeOff, Leaf, LockKeyhole, Mail, MapPin, ShieldCheck, ShoppingBag, Truck, UserRound } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
+import ProcessingIndicator from "../../components/common/ProcessingIndicator";
 
 export default function Login({ onAuth }) {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function Login({ onAuth }) {
           <label><span>Password</span><div className="auth-input"><LockKeyhole size={17} /><input name="password" type={showPassword ? "text" : "password"} autoComplete={registerMode ? "new-password" : "current-password"} placeholder="At least 6 characters" minLength="6" required value={form.password} onChange={update} /><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
           {registerMode && <label><span>Confirm password</span><div className="auth-input"><LockKeyhole size={17} /><input name="confirmPassword" type={showConfirm ? "text" : "password"} autoComplete="new-password" placeholder="Repeat your password" minLength="6" required value={form.confirmPassword} onChange={update} /><button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}>{showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>}
           {error && <p className="error" role="alert">{error}</p>}
-          <button className="primary-btn full auth-submit" disabled={saving}>{saving ? (registerMode ? "Creating account..." : "Signing in...") : (registerMode ? "Create Account" : "Continue with Email or Phone")}<span aria-hidden="true">→</span></button>
+          <button className="primary-btn full auth-submit" disabled={saving} aria-busy={saving}>{saving ? <ProcessingIndicator>{registerMode ? "Creating account..." : "Signing in..."}</ProcessingIndicator> : <>{registerMode ? "Create Account" : "Continue with Email or Phone"}<span aria-hidden="true">→</span></>}</button>
         </form>
         {registerMode && <p className="auth-terms">By continuing, you agree to our Terms &amp; Conditions and Privacy Policy.</p>}
         <p className="auth-switch">{registerMode ? "Already have an account?" : "New to NIJER MARKET?"} <button type="button" onClick={switchMode}>{registerMode ? "Sign in" : "Create an account"} →</button></p>

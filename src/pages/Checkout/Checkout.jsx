@@ -3,6 +3,7 @@ import { Copy, CreditCard, Package, QrCode } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { money } from "../../utils/format";
+import ProcessingIndicator from "../../components/common/ProcessingIndicator";
 
 // One id per checkout visit: double clicks or retries reuse it, so the server never creates duplicate orders.
 function newRequestId() {
@@ -125,8 +126,8 @@ export default function Checkout({ cart, clearCart }) {
             </div>
           )}
           {error && <p className="error">{error}</p>}
-          <button className="primary-btn full" type="submit" disabled={saving || (form.paymentMethod === "UPI" && !quote)}>
-            {saving ? "Submitting..." : form.paymentMethod === "UPI" ? "I Have Paid" : "Place Order"} · {money(payable)}
+          <button className="primary-btn full" type="submit" disabled={saving || (form.paymentMethod === "UPI" && !quote)} aria-busy={saving}>
+            {saving ? <ProcessingIndicator>Processing your order...</ProcessingIndicator> : <>{form.paymentMethod === "UPI" ? "I Have Paid" : "Place Order"} · {money(payable)}</>}
           </button>
         </div>
         <aside className="summary">
